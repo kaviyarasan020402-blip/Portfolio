@@ -1,0 +1,39 @@
+<svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" width="800" height="800">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1A222C"/>
+      <stop offset="1" stop-color="#0B0F14"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0.55" stop-color="#0B0F14" stop-opacity="0"/>
+      <stop offset="1" stop-color="#0B0F14" stop-opacity="0.92"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="800" fill="url(#bg)"/>
+
+  <!-- filmstrip corner marks -->
+  <g stroke="#242424" stroke-width="2" opacity="0.6">
+    <line x1="0" y1="40" x2="800" y2="40"/>
+    <line x1="0" y1="760" x2="800" y2="760"/>
+  </g>
+  <g fill="#242424" opacity="0.6">
+    <rect x="20" y="14" width="14" height="14" rx="2"/>
+    <rect x="60" y="14" width="14" height="14" rx="2"/>
+    <rect x="766" y="14" width="14" height="14" rx="2"/>
+    <rect x="726" y="14" width="14" height="14" rx="2"/>
+    <rect x="20" y="772" width="14" height="14" rx="2"/>
+    <rect x="60" y="772" width="14" height="14" rx="2"/>
+    <rect x="766" y="772" width="14" height="14" rx="2"/>
+    <rect x="726" y="772" width="14" height="14" rx="2"/>
+  </g>
+
+  <!-- play ring -->
+  <circle cx="400" cy="360" r="70" fill="none" stroke="#FF6B00" stroke-width="2.5" opacity="0.85"/>
+  <path d="M382 328 L440 360 L382 392 Z" fill="#EDEFF2"/>
+
+  <rect width="800" height="800" fill="url(#fade)"/>
+
+  <text x="400" y="700" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="28" letter-spacing="2" fill="#EDEFF2" opacity="0.9">KAVIYARASAN.V</text>
+  <text x="400" y="736" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="16" letter-spacing="3" fill="#FFB000" opacity="0.85">REEL PREVIEW</text>
+</svg>

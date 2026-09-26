@@ -1,0 +1,28 @@
+{
+    "work": [
+        {
+            "id": "id_muhxj87h151xht",
+            "title": "Hiring Poster",
+            "category": "Posters",
+            "image": "assets/img/uploads/WhatsApp-Image-2026-09-25-at-4-54-23-PM-20260926-070849-65bd02.jpg",
+            "description": ""
+        },
+        {
+            "id": "id_muhxjlmpk8i4ia",
+            "title": "Cafe-shop",
+            "category": "Posters",
+            "image": "assets/img/uploads/IMG-20260305-WA0000-1-jpg-20260926-070906-ec1119.jpg",
+            "description": ""
+        },
+        {
+            "id": "id_muhxkc8num2yzo",
+            "title": "Package",
+            "category": "Posters",
+            "image": "assets/img/uploads/IMG-20260312-WA0000-1-jpg-20260926-070941-7ef693.jpg",
+            "description": ""
+        }
+    ],
+    "videos": [],
+    "profilePhoto": null,
+    "updatedAt": "2026-09-26T08:39:16+02:00"
+}

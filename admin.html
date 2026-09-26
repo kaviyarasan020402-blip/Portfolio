@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Kaviyarasan Portfolio</title>
+<style>
+  :root{
+    --bg:#0B0B0F; --panel:#15151C; --panel2:#121218; --line:#232330;
+    --text:#EDEFF2; --muted:#8A8F9C; --accent:#7C5CFC; --accent2:#6647E0;
+    --ok:#22D3B8; --err:#FF6A55;
+  }
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg); color:var(--text); font-family:'Segoe UI', Arial, sans-serif;
+    max-width:760px; margin:0 auto; padding:32px 20px 80px;
+  }
+  h1{font-size:1.5rem; margin:0 0 4px;}
+  p.hint{color:var(--muted); font-size:0.9rem; margin:0 0 20px;}
+  .bar{
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+    background:var(--panel2); border:1px solid var(--line); border-radius:8px;
+    padding:12px 16px; font-size:0.82rem; color:var(--muted); margin-bottom:22px; flex-wrap:wrap;
+  }
+  .bar a{color:var(--accent); text-decoration:none; font-weight:600;}
+  .bar a:hover{text-decoration:underline;}
+
+  .tabs{display:flex; gap:4px; border-bottom:1px solid var(--line); margin-bottom:26px;}
+  .tab-btn{
+    background:none; border:none; color:var(--muted); font-size:0.92rem; font-weight:600;
+    padding:10px 16px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .tab-btn.active{color:var(--text); border-bottom-color:var(--accent);}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:24px; margin-bottom:24px;}
+  .card h2{font-size:1.05rem; margin:0 0 6px;}
+  .note{
+    background:rgba(124,92,252,0.1); border:1px solid rgba(124,92,252,0.35);
+    color:#C9BFFF; border-radius:6px; padding:10px 12px; font-size:0.84rem; margin-bottom:18px;
+  }
+
+  label{display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--muted); margin:16px 0 6px;}
+  label:first-of-type{margin-top:0;}
+  input[type="text"], input[type="url"], textarea, select{
+    width:100%; padding:11px 12px; background:var(--panel2); border:1px solid var(--line);
+    color:var(--text); border-radius:6px; font-size:0.95rem; font-family:inherit;
+  }
+  textarea{resize:vertical; min-height:64px;}
+  input:focus, textarea:focus, select:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(124,92,252,0.18);}
+  .file-drop{
+    border:1.5px dashed var(--line); border-radius:6px; padding:16px; text-align:left;
+    cursor:pointer; position:relative; background:var(--panel2);
+  }
+  .file-drop:hover{border-color:var(--accent);}
+  .file-drop input[type="file"]{position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;}
+  .file-drop .fd-title{font-size:0.92rem; font-weight:600; display:flex; align-items:center; gap:8px;}
+  .file-drop .fd-sub{font-size:0.8rem; color:var(--muted); margin-top:2px;}
+  .file-drop.has-file{border-color:var(--ok);}
+  .sub-hint{font-size:0.78rem; color:var(--muted); margin-top:6px;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:560px){ .row2{grid-template-columns:1fr;} }
+
+  .table-wrap{width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  .table-wrap table{min-width:420px;}
+
+  #uploadProgress{display:none; height:6px; border-radius:4px; background:var(--panel2); overflow:hidden; margin-top:10px;}
+  #uploadProgress .bar-fill{height:100%; width:0%; background:var(--accent); transition:width .15s ease;}
+  #uploadProgress.show{display:block;}
+
+  /* ---------------- Responsive: laptop / tablet / mobile-large / mobile-medium / mobile-small ---------------- */
+  @media (max-width:900px){ /* tablet */
+    body{max-width:100%; padding:26px 18px 70px;}
+  }
+  @media (max-width:600px){ /* mobile large */
+    body{padding:20px 14px 60px;}
+    h1{font-size:1.32rem;}
+    .card{padding:18px;}
+    .tabs{overflow-x:auto; -webkit-overflow-scrolling:touch; flex-wrap:nowrap;}
+    .tab-btn{white-space:nowrap; padding:10px 12px; font-size:0.88rem;}
+    .bar{font-size:0.78rem; padding:10px 12px;}
+    .btn{width:100%; text-align:center;}
+    .btn-row{flex-direction:column;}
+    .data-actions{flex-direction:column;}
+    .data-actions .btn{width:100%;}
+  }
+  @media (max-width:480px){ /* mobile medium */
+    body{padding:18px 12px 56px;}
+    .card{padding:14px; border-radius:8px;}
+    label{font-size:0.74rem;}
+    input[type="text"], input[type="url"], textarea, select{padding:10px; font-size:0.9rem;}
+    table{font-size:0.78rem;}
+    th, td{padding:7px 4px;}
+    td.thumb-cell img{width:28px; height:28px;}
+    .mini-btn{padding:5px 8px; font-size:0.72rem;}
+    .photo-row{flex-direction:column; align-items:flex-start;}
+  }
+  @media (max-width:360px){ /* mobile small */
+    body{padding:14px 10px 52px;}
+    h1{font-size:1.15rem;}
+    p.hint{font-size:0.82rem;}
+    .card h2{font-size:0.95rem;}
+    .btn{padding:11px 14px; font-size:0.86rem;}
+  }
+  @media (min-width:1200px){ /* laptop / desktop */
+    body{max-width:820px;}
+  }
+
+  .btn{
+    border:none; border-radius:6px; padding:12px 22px; font-weight:700; font-size:0.92rem;
+    cursor:pointer; transition:opacity .15s ease, transform .1s ease;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{background:var(--accent2);}
+  .btn-ghost{background:transparent; color:var(--text); border:1px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--accent); color:var(--accent);}
+  .btn-row{display:flex; gap:10px; margin-top:22px; flex-wrap:wrap;}
+  .btn[disabled]{opacity:0.55; cursor:default;}
+
+  #msg{margin-top:14px; font-size:0.86rem; display:none;}
+  #msg.show{display:block;}
+  #msg.ok{color:var(--ok);}
+  #msg.err{color:var(--err);}
+
+  table{width:100%; border-collapse:collapse; margin-top:6px; font-size:0.86rem;}
+  th, td{text-align:left; padding:9px 6px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  th{color:var(--muted); font-weight:600; font-size:0.76rem; text-transform:uppercase; letter-spacing:0.03em;}
+  td.thumb-cell img{width:36px; height:36px; object-fit:cover; border-radius:4px; display:block;}
+  .row-actions{display:flex; gap:6px;}
+  .mini-btn{
+    background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:4px;
+    padding:5px 10px; font-size:0.76rem; cursor:pointer;
+  }
+  .mini-btn:hover{border-color:var(--accent); color:var(--accent);}
+  .mini-btn.danger:hover{border-color:var(--err); color:var(--err);}
+  .empty-row td{color:var(--muted); text-align:center; padding:22px 0;}
+
+  .photo-row{display:flex; align-items:center; gap:14px; background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-top:14px;}
+  .photo-row img{width:56px; height:56px; border-radius:8px; object-fit:cover; flex:none;}
+  .photo-row .pr-title{font-weight:700; font-size:0.9rem;}
+  .photo-row .pr-sub{font-size:0.78rem; color:var(--muted);}
+
+  .data-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
+  footer.foot{margin-top:34px; text-align:center; font-size:0.78rem; color:var(--muted);}
+  a.home-link{color:var(--accent); text-decoration:none;}
+</style>
+</head>
+<body>
+
+<h1>Admin</h1>
+<p class="hint">Add posters, reels and your profile photo here — they save to the server and show on the home page for every visitor, on any device.</p>
+
+<div class="bar">
+  <span id="storageUsage">Loading…</span>
+  <a href="index.html" target="_blank">View site ↗</a>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="work">Poster / Work</button>
+  <button class="tab-btn" data-tab="videos">Videos</button>
+  <button class="tab-btn" data-tab="photo">Profile Photo</button>
+</div>
+
+<!-- ===================== Poster / Work panel ===================== -->
+<div class="panel active" id="panel-work">
+  <div class="card">
+    <h2 id="workFormTitle">Add a new work item</h2>
+    <form id="workForm">
+      <input type="hidden" id="work_id">
+
+      <label for="work_title">Title</label>
+      <input type="text" id="work_title" required placeholder="e.g. Diwali Sale Poster">
+
+      <label for="work_category">Category</label>
+      <select id="work_category">
+        <option>Posters</option>
+        <option>Branding</option>
+        <option>Thumbnails</option>
+        <option>Social Media</option>
+        <option>Flyers</option>
+        <option value="__other__">Other…</option>
+      </select>
+      <input type="text" id="work_category_other" placeholder="Custom category" style="margin-top:8px; display:none;">
+
+      <label>Image</label>
+      <div class="file-drop" id="workDrop">
+        <div class="fd-title"><span>⬆</span> <span id="workFileLabel">Choose an image, or drag one here</span></div>
+        <div class="fd-sub">No file chosen yet</div>
+        <input type="file" id="work_image_file" accept=".jpg,.jpeg,.png,.webp,.svg">
+      </div>
+      <p class="sub-hint">Uploads are resized automatically. Or paste a path/URL below instead.</p>
+      <input type="text" id="work_image_path" placeholder="assets/img/project-07.jpg (optional if uploading above)">
+
+      <label for="work_description">Description</label>
+      <textarea id="work_description" placeholder="A short line about this project."></textarea>
+
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary" id="workSubmitBtn">Add Work →</button>
+        <button type="button" class="btn btn-ghost" id="workCancelBtn" style="display:none;">Cancel edit</button>
+      </div>
+      <div id="workMsg"></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Current work items</h2>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th></th><th>Title</th><th>Category</th><th></th></tr></thead>
+      <tbody id="workTable"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== Videos panel ===================== -->
+<div class="panel" id="panel-videos">
+  <div class="card">
+    <h2 id="videoFormTitle">Add a new video</h2>
+    <form id="videoForm">
+      <input type="hidden" id="video_id">
+
+      <label for="video_title">Title</label>
+      <input type="text" id="video_title" required placeholder="e.g. Brand Reel 2026">
+
+      <label for="video_category">Category label</label>
+      <input type="text" id="video_category" placeholder="Video Editing" value="Reel">
+
+      <label>Video file</label>
+      <div class="file-drop" id="videoDrop">
+        <div class="fd-title"><span>⬆</span> <span id="videoFileLabel">Choose a video file, or drag one here</span></div>
+        <div class="fd-sub">No file chosen yet</div>
+        <input type="file" id="video_file" accept=".mp4,.mov,.webm">
+      </div>
+      <p class="sub-hint">Uploaded videos are saved as real files on the server (works the same from a phone, tablet or laptop). Very large clips depend on your host's upload limit — see README.md if a big file fails. If saving fails, compress the video or use the path field below instead.</p>
+      <div id="videoSizeNote" class="sub-hint" style="display:none;"></div>
+      <input type="text" id="video_path" placeholder="Or paste a path/URL instead, e.g. assets/videos/video-05.mp4 or an Instagram link">
+
+      <label>Thumbnail image (optional)</label>
+      <div class="file-drop" id="thumbDrop">
+        <div class="fd-title"><span>⬆</span> <span id="thumbFileLabel">Choose a thumbnail, or drag one here</span></div>
+        <div class="fd-sub">No file chosen yet</div>
+        <input type="file" id="thumb_file" accept=".jpg,.jpeg,.png,.webp">
+      </div>
+      <input type="text" id="thumb_path" placeholder="Or paste a path instead, e.g. assets/img/video-05.jpg" style="margin-top:8px;">
+
+      <label for="video_duration">Duration label</label>
+      <input type="text" id="video_duration" placeholder="e.g. 00:45">
+
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary" id="videoSubmitBtn">Add Video →</button>
+        <button type="button" class="btn btn-ghost" id="videoCancelBtn" style="display:none;">Cancel edit</button>
+      </div>
+      <div id="videoMsg"></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Current videos</h2>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th></th><th>Title</th><th>Category</th><th></th></tr></thead>
+      <tbody id="videoTable"></tbody>
+    </table>
+    </div>
+    <div id="uploadProgress"><div class="bar-fill" id="uploadProgressFill"></div></div>
+  </div>
+</div>
+
+<!-- ===================== Profile Photo panel ===================== -->
+<div class="panel" id="panel-photo">
+  <div class="card">
+    <h2>Home page photo</h2>
+    <div class="note">This is the photo shown in the hero "poster" frame on the home page, next to the Branding / Poster Design chips. Upload a portrait photo — it's cropped to fit automatically.</div>
+
+    <label>Photo</label>
+    <div class="file-drop" id="photoDrop">
+      <div class="fd-title"><span>⬆</span> <span id="photoFileLabel">Choose a photo, or drag one here</span></div>
+      <div class="fd-sub">No file chosen yet</div>
+      <input type="file" id="photo_file" accept=".jpg,.jpeg,.png,.webp">
+    </div>
+    <p class="sub-hint">Uploads are resized automatically. A clear, well-lit portrait works best.</p>
+
+    <div class="photo-row">
+      <img id="currentPhotoImg" src="assets/img/kaviyarasan.jpg" alt="Current photo">
+      <div>
+        <div class="pr-title">Current photo</div>
+        <div class="pr-sub">Shown on the home page for every visitor.</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-primary" id="savePhotoBtn">Save Photo →</button>
+      <button type="button" class="btn btn-ghost" id="removePhotoBtn">Remove photo</button>
+    </div>
+    <div id="photoMsg"></div>
+  </div>
+</div>
+
+<!-- ===================== Data management (always visible) ===================== -->
+<div class="card">
+  <h2>Data</h2>
+  <p class="sub-hint" style="margin-top:0;">
+    Everything above already saves straight to the server (<code>data/site-data.json</code>, plus real files in
+    <code>assets/img/uploads/</code> and <code>assets/videos/uploads/</code>) — every visitor sees it immediately, on
+    any device. <strong>Export data</strong> below is just a backup copy of the JSON. <strong>Import data</strong>
+    restores titles/categories/paths from a previously exported file (it can't restore uploaded video/image bytes —
+    only their paths, so re-upload those files if they're missing).
+  </p>
+  <div class="data-actions">
+    <button class="btn btn-ghost" id="exportBtn">Export data ↓</button>
+    <button class="btn btn-ghost" id="importBtn">Import data ↑</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none;">
+    <button class="btn btn-ghost" id="resetBtn">Reset to defaults</button>
+  </div>
+</div>
+
+<footer class="foot">Kaviyarasan V — admin panel · <a class="home-link" href="index.html">Back to site</a></footer>
+
+<script src="js/site-data.js"></script>
+<script src="js/storage.js"></script>
+<script>
+/* ---------------------------------------------------------
+   IMPORTANT: this must match ADMIN_TOKEN in api/config.php
+   exactly, or every save/upload below will fail with
+   "Unauthorized". Change both when you personalize the site.
+--------------------------------------------------------- */
+const ADMIN_TOKEN = 'brandmaker-admin-2026';
+
+/* In-memory copy of the server's data. Loaded once at startup,
+   then kept in sync every time something is saved. */
+let SITE = { work: [], videos: [], profilePhoto: null };
+
+/* ---------------------------------------------------------
+   Tabs
+--------------------------------------------------------- */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+function setStatus(text, isErr){
+  const el = document.getElementById('storageUsage');
+  el.textContent = text;
+  el.style.color = isErr ? 'var(--err)' : '';
+}
+
+function showMsg(el, text, ok){
+  el.textContent = text;
+  el.className = 'show ' + (ok ? 'ok' : 'err');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+function wireFileDrop(dropEl, labelEl, inputEl, onFile){
+  inputEl.addEventListener('change', async () => {
+    const file = inputEl.files[0];
+    if (!file) return;
+    dropEl.classList.add('has-file');
+    labelEl.textContent = file.name;
+    await onFile(file);
+  });
+}
+
+function escapeHtml(s){
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function showUploadProgress(pct){
+  const wrap = document.getElementById('uploadProgress');
+  const fill = document.getElementById('uploadProgressFill');
+  if (pct === null){ wrap.classList.remove('show'); fill.style.width = '0%'; return; }
+  wrap.classList.add('show');
+  fill.style.width = pct + '%';
+}
+
+/* Saves the whole SITE object to the server, updates the in-memory
+   copy with whatever the server echoes back (in case it sanitized
+   anything), and refreshes the status line. */
+async function persistSite(){
+  SITE = await SiteAPI.saveData(SITE);
+  setStatus('Saved — live on the site now.');
+}
+
+/* ---------------------------------------------------------
+   Poster / Work
+--------------------------------------------------------- */
+const workForm = document.getElementById('workForm');
+const workTable = document.getElementById('workTable');
+const workMsg = document.getElementById('workMsg');
+let workImageFile = null; // raw File, uploaded on submit (not before)
+
+const workCategorySel = document.getElementById('work_category');
+const workCategoryOther = document.getElementById('work_category_other');
+workCategorySel.addEventListener('change', () => {
+  workCategoryOther.style.display = (workCategorySel.value === '__other__') ? 'block' : 'none';
+});
+
+wireFileDrop(
+  document.getElementById('workDrop'),
+  document.getElementById('workFileLabel'),
+  document.getElementById('work_image_file'),
+  async (file) => { workImageFile = file; }
+);
+
+function resetWorkForm(){
+  workForm.reset();
+  document.getElementById('work_id').value = '';
+  workImageFile = null;
+  workCategoryOther.style.display = 'none';
+  document.getElementById('workDrop').classList.remove('has-file');
+  document.getElementById('workFileLabel').textContent = 'Choose an image, or drag one here';
+  document.getElementById('workFormTitle').textContent = 'Add a new work item';
+  document.getElementById('workSubmitBtn').textContent = 'Add Work →';
+  document.getElementById('workCancelBtn').style.display = 'none';
+}
+
+document.getElementById('workCancelBtn').addEventListener('click', resetWorkForm);
+
+workForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('work_id').value;
+  const category = workCategorySel.value === '__other__'
+    ? (workCategoryOther.value.trim() || 'Other')
+    : workCategorySel.value;
+  const imagePath = document.getElementById('work_image_path').value.trim();
+  const existing = id ? SITE.work.find(x => x.id === id) : null;
+
+  const title = document.getElementById('work_title').value.trim();
+  if (!title){ showMsg(workMsg, 'Title is required.', false); return; }
+
+  const submitBtn = document.getElementById('workSubmitBtn');
+  const originalLabel = submitBtn.textContent;
+  submitBtn.disabled = true;
+
+  try{
+    let image = imagePath || (existing ? existing.image : '') || 'assets/img/poster-placeholder.svg';
+
+    if (workImageFile){
+      submitBtn.textContent = 'Uploading image…';
+      // Resize in-browser first (mobile photos are often 4-12MB) then upload the smaller file.
+      const resizedDataUrl = await fileToResizedDataURL(workImageFile, 1000, 0.82);
+      const uploadFile = dataURLtoFile(resizedDataUrl, (workImageFile.name || 'poster').replace(/\.[^.]+$/, '') + '.jpg');
+      const newPath = await SiteAPI.uploadFile(uploadFile, 'image');
+      if (existing && isUploadedPath(existing.image) && existing.image !== newPath) SiteAPI.deleteFile(existing.image);
+      image = newPath;
+    }
+
+    const item = { id: id || kvUid(), title, category, image, description: document.getElementById('work_description').value.trim() };
+
+    const items = SITE.work.slice();
+    const idx = items.findIndex(x => x.id === item.id);
+    if (idx >= 0) items[idx] = item; else items.push(item);
+    SITE.work = items;
+
+    submitBtn.textContent = 'Saving…';
+    await persistSite();
+    showMsg(workMsg, 'Saved.', true);
+    resetWorkForm();
+    renderWorkTable();
+  }catch(err){
+    showMsg(workMsg, err.message || 'Could not save.', false);
+  }finally{
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalLabel;
+  }
+});
+
+function renderWorkTable(){
+  const items = SITE.work;
+  workTable.innerHTML = '';
+  if (!items.length){
+    workTable.innerHTML = '<tr class="empty-row"><td colspan="4">No work items yet — add one above.</td></tr>';
+    return;
+  }
+  items.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="thumb-cell"><img src="${item.image}" alt=""></td>
+      <td>${escapeHtml(item.title)}</td>
+      <td>${escapeHtml(item.category || '')}</td>
+      <td class="row-actions">
+        <button class="mini-btn" data-edit="${item.id}">Edit</button>
+        <button class="mini-btn danger" data-del="${item.id}">Delete</button>
+      </td>`;
+    workTable.appendChild(tr);
+  });
+}
+
+workTable.addEventListener('click', async (e) => {
+  const editId = e.target.dataset.edit;
+  const delId = e.target.dataset.del;
+  if (editId){
+    const item = SITE.work.find(x => x.id === editId);
+    if (!item) return;
+    document.getElementById('work_id').value = item.id;
+    document.getElementById('work_title').value = item.title || '';
+    document.getElementById('work_description').value = item.description || '';
+    document.getElementById('work_image_path').value = isUploadedPath(item.image) ? '' : (item.image || '');
+    workImageFile = null;
+    document.getElementById('workDrop').classList.remove('has-file');
+    document.getElementById('workFileLabel').textContent = isUploadedPath(item.image)
+      ? 'Existing uploaded file (choose a new one to replace it)'
+      : 'Choose an image, or drag one here';
+    const knownCats = ['Posters','Branding','Thumbnails','Social Media','Flyers'];
+    if (knownCats.includes(item.category)){
+      workCategorySel.value = item.category;
+      workCategoryOther.style.display = 'none';
+    } else {
+      workCategorySel.value = '__other__';
+      workCategoryOther.value = item.category || '';
+      workCategoryOther.style.display = 'block';
+    }
+    document.getElementById('workFormTitle').textContent = 'Edit work item';
+    document.getElementById('workSubmitBtn').textContent = 'Save changes →';
+    document.getElementById('workCancelBtn').style.display = 'inline-block';
+    document.getElementById('panel-work').scrollIntoView({ behavior: 'smooth' });
+  } else if (delId){
+    if (!confirm('Delete this item?')) return;
+    const item = SITE.work.find(x => x.id === delId);
+    SITE.work = SITE.work.filter(x => x.id !== delId);
+    try{
+      await persistSite();
+      if (item && isUploadedPath(item.image)) SiteAPI.deleteFile(item.image);
+      renderWorkTable();
+    }catch(err){ alert('Could not delete: ' + err.message); }
+  }
+});
+
+/* ---------------------------------------------------------
+   Videos
+--------------------------------------------------------- */
+const videoForm = document.getElementById('videoForm');
+const videoTable = document.getElementById('videoTable');
+const videoMsg = document.getElementById('videoMsg');
+const videoSizeNote = document.getElementById('videoSizeNote');
+let pendingVideoFile = null;   // File object — uploaded only on submit
+let thumbFile = null;
+
+document.getElementById('video_file').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  pendingVideoFile = file;
+  document.getElementById('videoDrop').classList.add('has-file');
+  document.getElementById('videoFileLabel').textContent = file.name;
+  videoSizeNote.style.display = 'block';
+  videoSizeNote.textContent = 'Selected: ' + formatBytes(file.size) + ' — uploaded to the server when you click "Add Video".';
+});
+
+wireFileDrop(
+  document.getElementById('thumbDrop'),
+  document.getElementById('thumbFileLabel'),
+  document.getElementById('thumb_file'),
+  async (file) => { thumbFile = file; }
+);
+
+function resetVideoForm(){
+  videoForm.reset();
+  document.getElementById('video_id').value = '';
+  document.getElementById('video_category').value = 'Reel';
+  pendingVideoFile = null;
+  thumbFile = null;
+  ['videoDrop','thumbDrop'].forEach(id => document.getElementById(id).classList.remove('has-file'));
+  document.getElementById('videoFileLabel').textContent = 'Choose a video file, or drag one here';
+  document.getElementById('thumbFileLabel').textContent = 'Choose a thumbnail, or drag one here';
+  videoSizeNote.style.display = 'none';
+  showUploadProgress(null);
+  document.getElementById('videoFormTitle').textContent = 'Add a new video';
+  document.getElementById('videoSubmitBtn').textContent = 'Add Video →';
+  document.getElementById('videoCancelBtn').style.display = 'none';
+}
+document.getElementById('videoCancelBtn').addEventListener('click', resetVideoForm);
+
+videoForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('video_id').value || kvUid();
+  const videoPath = document.getElementById('video_path').value.trim();
+  const thumbPath = document.getElementById('thumb_path').value.trim();
+  const existing = document.getElementById('video_id').value ? SITE.videos.find(x => x.id === id) : null;
+
+  let video_url = videoPath || (existing ? existing.video_url : '') || '';
+  if (!pendingVideoFile && !video_url){ showMsg(videoMsg, 'Add a video file or a link/path.', false); return; }
+
+  const title = document.getElementById('video_title').value.trim();
+  if (!title){ showMsg(videoMsg, 'Title is required.', false); return; }
+
+  const submitBtn = document.getElementById('videoSubmitBtn');
+  const originalLabel = submitBtn.textContent;
+  submitBtn.disabled = true;
+
+  try{
+    let poster_url = thumbPath || (existing ? existing.poster_url : '') || '';
+
+    if (pendingVideoFile){
+      submitBtn.textContent = 'Uploading video…';
+      showMsg(videoMsg, 'Uploading — large files can take a while on mobile data…', true);
+      const newVideoPath = await SiteAPI.uploadFile(pendingVideoFile, 'video', (pct) => showUploadProgress(pct));
+      if (existing && isUploadedPath(existing.video_url) && existing.video_url !== newVideoPath) SiteAPI.deleteFile(existing.video_url);
+      video_url = newVideoPath;
+      showUploadProgress(null);
+    }
+
+    if (thumbFile){
+      submitBtn.textContent = 'Uploading thumbnail…';
+      const resizedDataUrl = await fileToResizedDataURL(thumbFile, 900, 0.82);
+      const uploadFile = dataURLtoFile(resizedDataUrl, (thumbFile.name || 'thumb').replace(/\.[^.]+$/, '') + '.jpg');
+      const newThumbPath = await SiteAPI.uploadFile(uploadFile, 'image');
+      if (existing && isUploadedPath(existing.poster_url) && existing.poster_url !== newThumbPath) SiteAPI.deleteFile(existing.poster_url);
+      poster_url = newThumbPath;
+    }
+
+    const item = {
+      id,
+      title,
+      category: document.getElementById('video_category').value.trim() || 'Reel',
+      video_url,
+      poster_url,
+      duration: document.getElementById('video_duration').value.trim(),
+      description: ''
+    };
+
+    const items = SITE.videos.slice();
+    const idx = items.findIndex(x => x.id === id);
+    if (idx >= 0) items[idx] = item; else items.push(item);
+    SITE.videos = items;
+
+    submitBtn.textContent = 'Saving…';
+    await persistSite();
+    showMsg(videoMsg, 'Saved.', true);
+    resetVideoForm();
+    renderVideoTable();
+  }catch(err){
+    showUploadProgress(null);
+    showMsg(videoMsg, err.message || 'Could not save.', false);
+  }finally{
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalLabel;
+  }
+});
+
+function renderVideoTable(){
+  const items = SITE.videos;
+  videoTable.innerHTML = '';
+  if (!items.length){
+    videoTable.innerHTML = '<tr class="empty-row"><td colspan="4">No videos yet — add one above.</td></tr>';
+    return;
+  }
+  items.forEach(item => {
+    const thumb = item.poster_url ? `<img src="${item.poster_url}" alt="">` : '🎬';
+    const badge = isUploadedPath(item.video_url) ? ' <span class="sub-hint" style="display:inline;">(uploaded file)</span>' : '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="thumb-cell">${thumb}</td>
+      <td>${escapeHtml(item.title)}${badge}</td>
+      <td>${escapeHtml(item.category || '')}</td>
+      <td class="row-actions">
+        <button class="mini-btn" data-edit="${item.id}">Edit</button>
+        <button class="mini-btn danger" data-del="${item.id}">Delete</button>
+      </td>`;
+    videoTable.appendChild(tr);
+  });
+}
+
+videoTable.addEventListener('click', async (e) => {
+  const editId = e.target.dataset.edit;
+  const delId = e.target.dataset.del;
+  if (editId){
+    const item = SITE.videos.find(x => x.id === editId);
+    if (!item) return;
+    document.getElementById('video_id').value = item.id;
+    document.getElementById('video_title').value = item.title || '';
+    document.getElementById('video_category').value = item.category || 'Reel';
+    document.getElementById('video_duration').value = item.duration || '';
+    pendingVideoFile = null;
+    thumbFile = null;
+    if (isUploadedPath(item.video_url)){
+      document.getElementById('video_path').value = '';
+      document.getElementById('videoDrop').classList.add('has-file');
+      document.getElementById('videoFileLabel').textContent = 'Existing uploaded file (choose a new one to replace it)';
+    } else {
+      document.getElementById('video_path').value = item.video_url || '';
+      document.getElementById('videoDrop').classList.remove('has-file');
+      document.getElementById('videoFileLabel').textContent = 'Choose a video file, or drag one here';
+    }
+    document.getElementById('thumb_path').value = isUploadedPath(item.poster_url) ? '' : (item.poster_url || '');
+    document.getElementById('videoFormTitle').textContent = 'Edit video';
+    document.getElementById('videoSubmitBtn').textContent = 'Save changes →';
+    document.getElementById('videoCancelBtn').style.display = 'inline-block';
+    document.getElementById('panel-videos').scrollIntoView({ behavior: 'smooth' });
+  } else if (delId){
+    if (!confirm('Delete this video?')) return;
+    const item = SITE.videos.find(x => x.id === delId);
+    SITE.videos = SITE.videos.filter(x => x.id !== delId);
+    try{
+      await persistSite();
+      if (item){
+        if (isUploadedPath(item.video_url)) SiteAPI.deleteFile(item.video_url);
+        if (isUploadedPath(item.poster_url)) SiteAPI.deleteFile(item.poster_url);
+      }
+      renderVideoTable();
+    }catch(err){ alert('Could not delete: ' + err.message); }
+  }
+});
+
+/* ---------------------------------------------------------
+   Profile photo
+--------------------------------------------------------- */
+let photoFile = null;
+const photoMsg = document.getElementById('photoMsg');
+wireFileDrop(
+  document.getElementById('photoDrop'),
+  document.getElementById('photoFileLabel'),
+  document.getElementById('photo_file'),
+  async (file) => {
+    photoFile = file;
+    try{
+      document.getElementById('currentPhotoImg').src = await fileToResizedDataURL(file, 1000, 0.85);
+    }catch(e){ showMsg(photoMsg, e.message, false); }
+  }
+);
+
+document.getElementById('savePhotoBtn').addEventListener('click', async () => {
+  if (!photoFile){ showMsg(photoMsg, 'Choose a photo first.', false); return; }
+  const btn = document.getElementById('savePhotoBtn');
+  const originalLabel = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Uploading…';
+  try{
+    const resizedDataUrl = await fileToResizedDataURL(photoFile, 1000, 0.85);
+    const uploadFile = dataURLtoFile(resizedDataUrl, 'profile-photo.jpg');
+    const oldPhoto = SITE.profilePhoto;
+    const newPath = await SiteAPI.uploadFile(uploadFile, 'image');
+    SITE.profilePhoto = newPath;
+    await persistSite();
+    if (oldPhoto && isUploadedPath(oldPhoto) && oldPhoto !== newPath) SiteAPI.deleteFile(oldPhoto);
+    showMsg(photoMsg, 'Saved.', true);
+  }catch(err){ showMsg(photoMsg, err.message || 'Could not save.', false); }
+  finally{ btn.disabled = false; btn.textContent = originalLabel; }
+});
+document.getElementById('removePhotoBtn').addEventListener('click', async () => {
+  const oldPhoto = SITE.profilePhoto;
+  SITE.profilePhoto = null;
+  try{
+    await persistSite();
+    if (oldPhoto && isUploadedPath(oldPhoto)) SiteAPI.deleteFile(oldPhoto);
+    photoFile = null;
+    document.getElementById('currentPhotoImg').src = (typeof SITE_DEFAULT_PHOTO !== 'undefined') ? SITE_DEFAULT_PHOTO : 'assets/img/kaviyarasan.jpg';
+    document.getElementById('photoDrop').classList.remove('has-file');
+    document.getElementById('photoFileLabel').textContent = 'Choose a photo, or drag one here';
+    showMsg(photoMsg, 'Removed — home page will use the default photo.', true);
+  }catch(err){ showMsg(photoMsg, err.message, false); }
+});
+
+function loadCurrentPhoto(){
+  const saved = SITE.profilePhoto;
+  document.getElementById('currentPhotoImg').src = saved || (typeof SITE_DEFAULT_PHOTO !== 'undefined' ? SITE_DEFAULT_PHOTO : 'assets/img/kaviyarasan.jpg');
+}
+
+/* ---------------------------------------------------------
+   Export / Import / Reset
+--------------------------------------------------------- */
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(SITE, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'portfolio-data.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+const importFileInput = document.getElementById('importFile');
+document.getElementById('importBtn').addEventListener('click', () => importFileInput.click());
+importFileInput.addEventListener('change', async () => {
+  const file = importFileInput.files[0];
+  if (!file) return;
+  try{
+    const data = JSON.parse(await file.text());
+    if (Array.isArray(data.work)) SITE.work = data.work;
+    if (Array.isArray(data.videos)) SITE.videos = data.videos;
+    if (typeof data.profilePhoto === 'string' || data.profilePhoto === null) SITE.profilePhoto = data.profilePhoto;
+    await persistSite();
+    renderWorkTable();
+    renderVideoTable();
+    loadCurrentPhoto();
+    alert('Data imported and saved to the server.');
+  }catch(e){ alert('Could not import that file: ' + e.message); }
+  importFileInput.value = '';
+});
+
+document.getElementById('resetBtn').addEventListener('click', async () => {
+  if (!confirm('Reset the live site back to its default demo content? Uploaded files on the server are left in place (only the data pointing to them is reset). This cannot be undone.')) return;
+  SITE = {
+    work: (typeof SITE_DEFAULT_WORK !== 'undefined') ? SITE_DEFAULT_WORK : [],
+    videos: (typeof SITE_DEFAULT_VIDEOS !== 'undefined') ? SITE_DEFAULT_VIDEOS : [],
+    profilePhoto: null
+  };
+  try{
+    await persistSite();
+    resetWorkForm();
+    resetVideoForm();
+    photoFile = null;
+    renderWorkTable();
+    renderVideoTable();
+    loadCurrentPhoto();
+  }catch(err){ alert('Could not reset: ' + err.message); }
+});
+
+/* ---------------------------------------------------------
+   Init
+--------------------------------------------------------- */
+(async function init(){
+  try{
+    SITE = await SiteAPI.getData();
+    if (!Array.isArray(SITE.work)) SITE.work = [];
+    if (!Array.isArray(SITE.videos)) SITE.videos = [];
+    setStatus('Connected — changes here go live for every visitor immediately.');
+  }catch(err){
+    setStatus('Could not reach the server (' + err.message + '). Working offline — saves will fail until this loads.', true);
+  }
+  renderWorkTable();
+  renderVideoTable();
+  loadCurrentPhoto();
+})();
+</script>
+</body>
+</html>
